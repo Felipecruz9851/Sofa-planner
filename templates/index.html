@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lider Maker - Montador de Sofás</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay d-none">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container-fluid h-100 p-0">
+        <div class="row h-100 g-0">
+            <!-- Sidebar -->
+            <div class="col-12 col-lg-3 sidebar-container">
+                <div class="sidebar h-100 d-flex flex-column">
+                    <!-- Header -->
+                    <div class="sidebar-header p-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ url_for('static', filename='images/logo_lider.png') }}" alt="Lider Logo"
+                                    class="me-2" style="height: 32px;">
+                                <h5 class="mb-0 fw-bold" style="font-size: 32px;">Maker</h5>
+                            </div>
+                            <button class="btn btn-outline-secondary btn-sm d-lg-none" id="closeSidebar">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        <!-- Search -->
+                        <div class="search-container">
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control" id="searchInput"
+                                    placeholder="Buscar modelos">
+                            </div>
+                            <div id="searchResults" class="search-results mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Navigation Tabs -->
+                    <div class="sidebar-tabs">
+                        <nav class="nav nav-pills nav-fill">
+                            <button class="nav-link active" id="modelsTab" data-bs-toggle="pill"
+                                data-bs-target="#modelsPane">
+                                <i class="fas fa-th-large me-1"></i> Modelos
+                            </button>
+                            <button class="nav-link" id="modulesTab" data-bs-toggle="pill"
+                                data-bs-target="#modulesPane">
+                                <i class="fas fa-puzzle-piece me-1"></i> Módulos
+                            </button>
+                            <button class="nav-link" id="projectsTab" data-bs-toggle="pill"
+                                data-bs-target="#projectsPane">
+                                <i class="fas fa-folder me-1"></i> Projetos
+                            </button>
+                        </nav>
+                    </div>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content flex-grow-1 overflow-hidden">
+                        <!-- Models Tab -->
+                        <div class="tab-pane fade show active h-100" id="modelsPane">
+                            <div class="p-3 overflow-auto">
+                                <div id="modelsContainer" class="models-container">
+                                    <div class="text-center p-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Carregando modelos...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modules Tab -->
+                        <div class="tab-pane fade h-100" id="modulesPane">
+                            <div class="p-3 h-100 overflow-auto">
+                                <div class="alert alert-info text-center" id="noModelSelected">
+                                    <i class="fas fa-info-circle mb-2"></i>
+                                    <p class="mb-0">Selecione um modelo na aba "Modelos" para ver os módulos
+                                        disponíveis.</p>
+                                </div>
+                                <div id="modulesContainer" class="modules-container d-none"></div>
+                            </div>
+                        </div>
+
+                        <!-- Projects Tab -->
+                        <div class="tab-pane fade h-100" id="projectsPane">
+                            <div class="p-3 h-100 d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">Projetos Salvos</h6>
+                                    <button class="btn btn-primary btn-sm" id="saveProjectBtn">
+                                        <i class="fas fa-save me-1"></i> Salvar
+                                    </button>
+                                </div>
+                                <div id="projectsContainer" class="flex-grow-1 overflow-auto"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Workspace -->
+            <div class="col-12 col-lg-9 workspace-container">
+                <div class="workspace h-100 d-flex flex-column">
+                    <!-- Toolbar -->
+                    <div class="toolbar border-bottom p-2">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-outline-secondary btn-sm me-2 d-lg-none" id="openSidebar">
+                                    <i class="fas fa-bars"></i>
+                                </button>
+
+                                <!-- Zoom Controls -->
+                                <div class="btn-group me-3" role="group">
+                                    <button class="btn btn-outline-secondary btn-sm" id="zoomOut">
+                                        <i class="fas fa-search-minus"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="zoomReset">
+                                        <span id="zoomLevel">100%</span>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="zoomIn">
+                                        <i class="fas fa-search-plus"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Canvas Controls -->
+                                <div class="btn-group me-3" role="group">
+                                    <button class="btn btn-outline-secondary btn-sm" id="undoBtn" title="Desfazer">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="redoBtn" title="Refazer">
+                                        <i class="fas fa-redo"></i>
+                                    </button>
+                                </div>
+
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-outline-secondary btn-sm" id="clearCanvas"
+                                        title="Limpar canvas">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" id="gridToggle"
+                                        title="Mostrar/ocultar grid">
+                                        <i class="fas fa-th"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center">
+                                <!-- Export Options -->
+                                <div class="dropdown me-2">
+                                    <button class="btn btn-success btn-sm dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown">
+                                        <i class="fas fa-download me-1"></i> Exportar
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <!-- <li><a class="dropdown-item" href="#" id="exportPNG"><i class="fas fa-image me-2"></i> PNG</a></li> -->
+                                        <li><a class="dropdown-item" href="#" id="exportJSON"><i
+                                                    class="fas fa-code me-2"></i> JSON</a></li>
+                                        <li><a class="dropdown-item" href="#" id="exportPDF"><i
+                                                    class="fas fa-file-pdf me-2"></i> PDF</a></li>
+                                    </ul>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas Area -->
+                    <div class="canvas-container flex-grow-1 position-relative overflow-auto" id="canvasContainer">
+                        <div class="canvas-workspace" id="canvasWorkspace">
+                            <div class="canvas-sheet" id="canvasSheet">
+                                <!-- Placed modules will be added here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status Bar -->
+                    <div class="status-bar border-top p-2 bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <span id="moduleCount">0 módulos</span> |
+                                <span id="canvasSize"> - </span> |&nbsp; 
+                                
+                            </small>
+                            <small class="text-muted" id="statusMessage">
+                                Arraste módulos do painel lateral para o canvas
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Project Modal -->
+    <div class="modal fade" id="saveProjectModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-save me-2"></i>Salvar Projeto
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="saveProjectForm">
+                        <div class="mb-3">
+                            <label for="projectName" class="form-label">Nome do Projeto</label>
+                            <input type="text" class="form-control" id="projectName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="projectDescription" class="form-label">Descrição (opcional)</label>
+                            <textarea class="form-control" id="projectDescription" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="confirmSaveProject">
+                        <i class="fas fa-save me-1"></i>Salvar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/modules.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/canvas.js') }}"></script>
+</body>
+
+</html>

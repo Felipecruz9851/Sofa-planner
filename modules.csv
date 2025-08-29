@@ -1,0 +1,16 @@
+id;MODELO;MODULO;LARGURA;PROFUNDIDADE;image;categoria;created_at
+1;ALVA;21;900.0;900.0;static/images/1AV1021.png;Sofá;21/08/2025 12:47
+2;ALVA;21;1000.0;900.0;static/images/1AV1021.png;Sofá;21/08/2025 12:47
+3;EDGE;21;1000.0;1000.0;https://via.placeholder.com/100x100/E91E63/white?text=EDGE+21;Sofá;21/08/2025 12:47
+4;ALVA;22;1800.0;900.0;static/images/1AV1022.png;Sofá;21/08/2025 12:47
+5;ALVA;22;2000.0;900.0;static/images/1AV1022.png;Sofá;21/08/2025 12:47
+6;ALVA;31;1100.0;900.0;static/images/1AV1031.png;Sofá;21/08/2025 12:47
+7;ALVA;31;1200.0;900.0;static/images/1AV1031.png;Sofá;21/08/2025 12:47
+8;EDGE;31;1000.0;1000.0;https://via.placeholder.com/100x100/9C27B0/white?text=EDGE+31;Sofá;21/08/2025 12:47
+9;ALVA;32;2000.0;900.0;static/images/1AV1032.png;Sofá;22/08/2025 12:47
+10;ALVA;32;2200.0;900.0;static/images/1AV1032.png;Sofá;22/08/2025 12:47
+11;EDGE;BD;1000.0;1000.0;https://via.placeholder.com/100x100/FF5722/white?text=EDGE+BD;Sofá;21/08/2025 12:47
+12;ALVA;BE;1100.0;1500.0;static/images/1AV10BE.png;Sofá;23/08/2025 12:47
+13;ALVA;BE;1200.0;1500.0;static/images/1AV10BE.png;Sofá;23/08/2025 12:47
+14;ALVA;RD;1400.0;900.0;static/images/1AV10RD.png;Sofá;24/08/2025 12:47
+15;ALVA;RD;1500.0;900.0;static/images/1AV10RD.png;Sofá;24/08/2025 12:47
