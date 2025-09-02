@@ -411,20 +411,28 @@ class SofaDesigner {
     }
 
     restoreState(state) {
-        const canvas = document.getElementById('canvasSheet');
-        canvas.innerHTML = '';
+    const canvas = document.getElementById('canvasSheet');
+    canvas.innerHTML = '';
 
-        state.modules.forEach(moduleData => {
-            canvasManager.createPlacedModule(
-                moduleData.data,
-                moduleData.x,
-                moduleData.y,
-                false // Don't save state during restore
-            );
-        });
+    state.modules.forEach(moduleData => {
+        const el = canvasManager.createPlacedModule(
+            moduleData.data,
+            moduleData.x,
+            moduleData.y,
+            false,
+            {
+                rotation: moduleData.rotation,
+                flipX: moduleData.flipX,
+                flipY: moduleData.flipY
+            }
+        );
 
-        this.updateModuleCount();
-    }
+        el.style.width = moduleData.width + 'px';
+        el.style.height = moduleData.height + 'px';
+    });
+
+    this.updateModuleCount();
+}
 
     // Canvas management
     clearCanvas() {

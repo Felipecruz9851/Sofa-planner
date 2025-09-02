@@ -266,35 +266,43 @@ def api_project_detail(project_id):
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 #################################
+def _normalize_image_field(image_value):
+    """Normaliza o campo de imagem para retornar o caminho correto"""
+    if not image_value:
+        return ""
+    # Se já começa com 'static/', retorna como está
+    if image_value.startswith("static/"):
+        return image_value
+    # Caso contrário, assume que está na pasta de upload
+    return f"static/images/{image_value}"
+
 # Endpoint para listar todos os módulos
-# Endpoint para listar todos os módulos e seus modelos associados
-@app.route('/api/modules', methods=['GET'])
-def get_modules():
-    """
-    Lista todos os módulos e seus respectivos modelos da tabela 'modules'.
-    Assume que a tabela 'modules' possui as colunas 'MODELO' e 'MODULO'.
-    Retorna uma lista de dicionários, onde cada dicionário contém 'MODELO' e 'MODULO'.
-    """
+@app.route('/api/modulos', methods=['GET'])
+def get_modulos():
     conn = get_db()
-    try:
-        # Seleciona as colunas 'MODELO' e 'MODULO' da tabela 'modules'
-        modules_and_models = conn.execute('SELECT MODELO, MODULO FROM modules').fetchall()
-        
-        # Converte os resultados da consulta (objetos Row) em uma lista de dicionários
-        # Cada dicionário terá as chaves 'MODELO' e 'MODULO'
-        result_list = [dict(row) for row in modules_and_models]
-        
-        return jsonify(result_list)
-    except sqlite3.OperationalError as e:
-        # Captura erros se as colunas 'MODELO' ou 'MODULO' não existirem na tabela
-        return jsonify({"error": f"Erro ao acessar o banco de dados: {e}. Verifique se as colunas 'MODELO' e 'MODULO' existem na tabela 'modules'."}), 500
-    finally:
-        # A conexão será fechada pelo teardown_appcontext, mas o try-finally é boa prática
-        pass 
+    rows = conn.execute('''
+        SELECT id, MODELO, MODULO, LARGURA, PROFUNDIDADE, image, categoria, created_at
+        FROM modules
+        ORDER BY MODELO, MODULO
+    ''').fetchall()
+    conn.close()
+
+    modules_list = []
+    for row in rows:
+        row_dict = dict(row)  # mantém as chaves como no DB (MODELO, MODULO, image, ...)
+        # normaliza apenas o campo de imagem
+        if 'image' in row_dict:
+            row_dict['image'] = _normalize_image_field(row_dict.get('image'))
+        elif 'IMAGEM' in row_dict:  # por precaução se seu DB tiver outra variação
+            row_dict['IMAGEM'] = _normalize_image_field(row_dict.get('IMAGEM'))
+
+        modules_list.append(row_dict)
+
+    return jsonify(modules_list)
 
 
 # Endpoint para cadastrar um novo módulo
-@app.route('/api/modules', methods=['POST'])
+@app.route('/api/modulos', methods=['POST'])
 def add_module():
     if 'image' not in request.files:
         return jsonify({'error': 'No image part in the request'}), 400
@@ -309,19 +317,22 @@ def add_module():
         file.save(filepath)
 
         data = request.form
-        if not all(key in data for key in ['MODELO', 'MODULO', 'LARGURA', 'PROFUNDIDADE']):
+        if not all(key in data for key in ['MODELO', 'MODULO', 'LARGURA', 'PROFUNDIDADE', 'id', 'created_at']):
             return jsonify({'error': 'Missing required form fields'}), 400
 
+        id = data.get('id')  # Optional, if you want to allow setting ID
         modelo = data['MODELO']
         modulo = data['MODULO']
         largura = float(data['LARGURA'])
         profundidade = float(data['PROFUNDIDADE'])
         categoria = data.get('categoria', 'Geral')
+        post_date = datetime.now()
+        created_at = post_date.strftime('%Y-%m-%d %H:%M:%S')    
 
         try:
             conn = get_db()
             conn.execute('''
-                INSERT INTO modules (MODELO, MODULO, LARGURA, PROFUNDIDADE, image, categoria)
+                INSERT INTO modules (MODELO, MODULO, LARGURA, PROFUNDIDADE, image, categoria, id, created_at)
                 VALUES (?, ?, ?, ?, ?, ?)
             ''', (modelo, modulo, largura, profundidade, filename, categoria))
             conn.commit()
@@ -343,6 +354,7 @@ def delete_module(module_id):
         return jsonify({'message': 'Módulo excluído com sucesso!'}), 200
     except sqlite3.Error as e:
         return jsonify({'error': f'Database error: {e}'}), 500
+#################################
 #################################
 
 if __name__ == "__main__":

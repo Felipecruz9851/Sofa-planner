@@ -10,12 +10,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     <style>
-        /* Estilos adicionais, se necessário, para ajuste fino */
-        body {
+        html, body {
+            height: 100%;
+            overflow-y: auto; /* força a rolagem vertical */
+            scroll-behavior: smooth;
             background-color: #f0f2f5;
         }
 
         .container-main {
+            min-height: 100vh; /* ocupa a tela inteira */
             padding-top: 2rem;
             padding-bottom: 2rem;
         }
@@ -118,7 +121,7 @@
             async function fetchModules() {
                 moduleListDiv.innerHTML = '<p class="text-center w-100">Carregando módulos...</p>';
                 try {
-                    const response = await fetch('/api/modules');
+                    const response = await fetch('/api/modulos');
                     const modules = await response.json();
                     renderModules(modules);
                 } catch (error) {
@@ -139,7 +142,7 @@
                     moduleItem.className = 'col';
                     moduleItem.innerHTML = `
                         <div class="card h-100 module-card">
-                            <img src="/static/images/${module.image}" class="card-img-top module-image" alt="${module.MODELO}" onerror="this.onerror=null;this.src='https://placehold.co/400x250/cccccc/333333?text=Sem+Imagem';">
+                            <img src="${module.image}" class="card-img-top module-image" alt="${module.MODELO}" onerror="this.onerror=null;this.src='https://placehold.co/400x250/cccccc/333333?text=Sem+Imagem';">
                             <div class="card-body d-flex flex-column">
                                 <h5 class="card-title text-center">${module.MODELO} - ${module.MODULO}</h5>
                                 <p class="card-text text-muted text-center mb-1">
@@ -185,7 +188,7 @@
                 const formData = new FormData(moduleForm);
                 
                 try {
-                    const response = await fetch('/api/modules', {
+                    const response = await fetch('/api/modulos', {
                         method: 'POST',
                         body: formData
                     });

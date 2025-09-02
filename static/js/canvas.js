@@ -65,74 +65,64 @@ class CanvasManager {
         // Additional drop zone setup if needed
     }
 
-    createPlacedModule(moduleData, x, y, saveState = true) {
-        if (saveState) {
-            sofaDesigner.saveState();
-        }
-
-        const canvas = document.getElementById('canvasSheet');
-
-        // Calculate exact size from database dimensions
-        const dimensions = this.getModuleDimensions(moduleData);
-        const width = dimensions.width;
-        const height = dimensions.height;
-
-        // Adjust position to center the module on cursor
-        const adjustedX = Math.max(0, Math.min(x - width / 2, canvas.clientWidth - width));
-        const adjustedY = Math.max(0, Math.min(y - height / 2, canvas.clientHeight - height));
-
-        // Check for collision with minimal spacing
-        if (this.hasCollision(null, adjustedX, adjustedY, width, height)) {
-            sofaDesigner.showToast('Posição ocupada! Tente outro local.', 'warning');
-            return null;
-        }
-
-        // Create module element
-        const moduleElement = document.createElement('div');
-        moduleElement.className = 'placed-module fade-in';
-        moduleElement.style.left = adjustedX + 'px';
-        moduleElement.style.top = adjustedY + 'px';
-        moduleElement.style.width = width + 'px';
-        moduleElement.style.height = height + 'px';
-
-        // Store module data
-        moduleElement.dataset.moduleId = moduleData.id;
-        moduleElement.dataset.moduleData = JSON.stringify(moduleData);
-        moduleElement.dataset.rotation = '0';
-        moduleElement.dataset.flipX = '1';
-        moduleElement.dataset.flipY = '1';
-
-        // Create controls
-        const controls = this.createModuleControls(moduleElement);
-
-        // Create image
-        const img = document.createElement('img');
-        img.src = moduleData.image;
-        img.alt = moduleData.modulo;
-        img.draggable = false;
-        img.style.position = 'absolute';
-        img.style.top = '50%';
-        img.style.left = '50%';
-        img.style.transformOrigin = 'center center';
-        img.style.objectFit = 'fill';
-        img.style.transform = 'translate(-50%, -50%)';
-
-        // Assemble module
-        moduleElement.appendChild(controls);
-        moduleElement.appendChild(img);
-
-        // Setup interactions
-        this.setupModuleInteractions(moduleElement);
-
-        // Add to canvas
-        canvas.appendChild(moduleElement);
-
-        // Update counters
-        sofaDesigner.updateModuleCount();
-        sofaDesigner.updateStatusMessage(`Módulo "${moduleData.modulo}" adicionado`);
-
-        return moduleElement;
+    createPlacedModule(moduleData, x, y, saveState = true, opts = {}) {
+    if (saveState) {
+        sofaDesigner.saveState();
     }
+
+    const canvas = document.getElementById('canvasSheet');
+    const { width, height } = this.getModuleDimensions(moduleData);
+
+    const adjustedX = Math.max(0, Math.min(x - width / 2, canvas.clientWidth - width));
+    const adjustedY = Math.max(0, Math.min(y - height / 2, canvas.clientHeight - height));
+
+    if (this.hasCollision(null, adjustedX, adjustedY, width, height)) {
+        sofaDesigner.showToast('Posição ocupada! Tente outro local.', 'warning');
+        return null;
+    }
+
+    const moduleElement = document.createElement('div');
+    moduleElement.className = 'placed-module fade-in';
+    moduleElement.style.left = adjustedX + 'px';
+    moduleElement.style.top = adjustedY + 'px';
+    moduleElement.style.width = width + 'px';
+    moduleElement.style.height = height + 'px';
+
+    moduleElement.dataset.moduleId = moduleData.id;
+    moduleElement.dataset.moduleData = JSON.stringify(moduleData);
+
+    // ← aqui aceita valores vindos de fora
+    moduleElement.dataset.rotation = String(opts.rotation ?? 0);
+    moduleElement.dataset.flipX = String(opts.flipX ?? 1);
+    moduleElement.dataset.flipY = String(opts.flipY ?? 1);
+
+    const controls = this.createModuleControls(moduleElement);
+
+    const img = document.createElement('img');
+    img.src = moduleData.image;
+    img.alt = moduleData.modulo;
+    img.draggable = false;
+    img.style.position = 'absolute';
+    img.style.top = '50%';
+    img.style.left = '50%';
+    img.style.transformOrigin = 'center center';
+    img.style.objectFit = 'fill';
+    img.style.transform = 'translate(-50%, -50%)';
+
+    moduleElement.appendChild(controls);
+    moduleElement.appendChild(img);
+
+    this.setupModuleInteractions(moduleElement);
+    canvas.appendChild(moduleElement);
+
+    // aplica rotação/flip na imagem
+    this.applyTransforms(moduleElement);
+
+    sofaDesigner.updateModuleCount();
+    sofaDesigner.updateStatusMessage(`Módulo "${moduleData.modulo}" adicionado`);
+
+    return moduleElement;
+}
 
     createModuleControls(moduleElement) {
         const controls = document.createElement('div');
