@@ -10,15 +10,18 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
-            overflow-y: auto; /* força a rolagem vertical */
+            overflow-y: auto;
+            /* força a rolagem vertical */
             scroll-behavior: smooth;
             background-color: #f0f2f5;
         }
 
         .container-main {
-            min-height: 100vh; /* ocupa a tela inteira */
+            min-height: 100vh;
+            /* ocupa a tela inteira */
             padding-top: 2rem;
             padding-bottom: 2rem;
         }
@@ -52,19 +55,23 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="modelo" class="form-label">Modelo</label>
-                        <input type="text" class="form-control" id="modelo" name="MODELO" placeholder="Ex: Linha Premium" required>
+                        <input type="text" class="form-control" id="modelo" name="MODELO"
+                            placeholder="Ex: Linha Premium" required>
                     </div>
                     <div class="col-md-6">
                         <label for="modulo" class="form-label">Módulo</label>
-                        <input type="text" class="form-control" id="modulo" name="MODULO" placeholder="Ex: Armário Superior" required>
+                        <input type="text" class="form-control" id="modulo" name="MODULO"
+                            placeholder="Ex: Armário Superior" required>
                     </div>
                     <div class="col-md-6">
                         <label for="largura" class="form-label">Largura (m)</label>
-                        <input type="number" step="0.01" class="form-control" id="largura" name="LARGURA" placeholder="Ex: 0.60" required>
+                        <input type="number" step="0.01" class="form-control" id="largura" name="LARGURA"
+                            placeholder="Ex: 0.60" required>
                     </div>
                     <div class="col-md-6">
                         <label for="profundidade" class="form-label">Profundidade (m)</label>
-                        <input type="number" step="0.01" class="form-control" id="profundidade" name="PROFUNDIDADE" placeholder="Ex: 0.35" required>
+                        <input type="number" step="0.01" class="form-control" id="profundidade" name="PROFUNDIDADE"
+                            placeholder="Ex: 0.35" required>
                     </div>
                     <div class="col-12">
                         <label for="image" class="form-label">Imagem</label>
@@ -72,7 +79,12 @@
                     </div>
                     <div class="col-12">
                         <label for="categoria" class="form-label">Categoria (opcional)</label>
-                        <input type="text" class="form-control" id="categoria" name="categoria" placeholder="Ex: Cozinha, Banheiro">
+                        <input type="text" class="form-control" id="categoria" name="categoria"
+                            placeholder="Ex: Cozinha, Banheiro">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="module-id" class="form-label">ID do Módulo</label>
+                        <input type="text" class="form-control" id="module-id" name="id" placeholder="Ex: 101" required>
                     </div>
                     <div class="col-12 text-center mt-4">
                         <button type="submit" class="btn btn-primary w-50">
@@ -92,12 +104,14 @@
     </div>
 
     <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="message-toast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="message-toast" class="toast align-items-center text-white bg-success border-0" role="alert"
+            aria-live="assertive" aria-atomic="true">
             <div class="d-flex">
                 <div class="toast-body">
                     Módulo cadastrado com sucesso!
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+                    aria-label="Close"></button>
             </div>
         </div>
     </div>
@@ -112,7 +126,7 @@
             function showMessage(message, type = 'success') {
                 const toastBody = document.querySelector('#message-toast .toast-body');
                 const toastElement = document.getElementById('message-toast');
-                
+
                 toastElement.className = `toast align-items-center text-white bg-${type} border-0`;
                 toastBody.textContent = message;
                 messageToast.show();
@@ -186,7 +200,7 @@
             moduleForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const formData = new FormData(moduleForm);
-                
+
                 try {
                     const response = await fetch('/api/modulos', {
                         method: 'POST',
@@ -210,4 +224,5 @@
         });
     </script>
 </body>
+
 </html>

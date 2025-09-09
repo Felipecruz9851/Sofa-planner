@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "dev-secret-key-change-in-production")
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'static', 'images')
 
 DB_PATH = "sofas.db"
 DATABASE = DB_PATH
